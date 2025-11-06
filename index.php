@@ -144,6 +144,20 @@ while ($row = $result->fetch_assoc()) {
 
 // Convert nodes array to JSON for JavaScript
 $nodesJson = json_encode($nodes);
+
+// Prepare a small preview list (first 10) for logged-in users
+$previewMembers = [];
+if (isset($_SESSION['admin_id'])) {
+    $pres = $conn->query("SELECT id, name, gender, photo, date_of_birth, gotra, caste, education, address, family_id FROM family_members ORDER BY name LIMIT 10");
+    while ($r = $pres->fetch_assoc()) $previewMembers[] = $r;
+} elseif (isset($_SESSION['member_id']) && isset($_SESSION['member_family_id'])) {
+    $pfid = (int)$_SESSION['member_family_id'];
+    $stmtP = $conn->prepare("SELECT id, name, gender, photo, date_of_birth, gotra, caste, education, address, family_id FROM family_members WHERE family_id = ? ORDER BY name LIMIT 10");
+    $stmtP->bind_param('i', $pfid);
+    $stmtP->execute();
+    $resP = $stmtP->get_result();
+    while ($r = $resP->fetch_assoc()) $previewMembers[] = $r;
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -210,8 +224,11 @@ $nodesJson = json_encode($nodes);
             <?php endif; ?>
         </label>
 
-        <?php if (isset($_SESSION['member_id'])): ?>
-            <a href="member_dashboard.php" class="add-member-btn">My Account</a>
+        <?php if (isset($_SESSION['member_id']) || isset($_SESSION['admin_id'])): ?>
+            <a href="members_list.php" class="add-member-btn">Members List</a>
+            <?php if (isset($_SESSION['member_id'])): ?>
+                <a href="member_dashboard.php" class="add-member-btn">My Account</a>
+            <?php endif; ?>
             <a href="member_logout.php" class="add-member-btn">Logout</a>
         <?php else: ?>
             <a href="member_login.php" class="add-member-btn">Login</a>
@@ -249,6 +266,41 @@ $nodesJson = json_encode($nodes);
         </div>
     <?php else: ?>
         <div id="tree"></div>
+    <?php endif; ?>
+    <?php if (!empty($previewMembers)): ?>
+        <div style="max-width:1100px;margin:16px auto;background:#fff;border-radius:8px;padding:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <strong>Members Preview</strong>
+                <a href="members_list.php" class="add-member-btn" style="padding:6px 10px;">Open full list</a>
+            </div>
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Photo</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Name</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">DOB</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Gotra</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Caste</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Education</th>
+                        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($previewMembers as $pm): ?>
+                        <?php $img = !empty($pm['photo']) ? 'uploads/' . $pm['photo'] : ($pm['gender'] === 'female' ? $femaleDataUri : $maleDataUri); ?>
+                        <tr>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><img src="<?php echo htmlspecialchars($img); ?>" style="width:48px;height:48px;object-fit:cover;border-radius:6px"></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><?php echo htmlspecialchars($pm['name']); ?></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><?php echo htmlspecialchars($pm['date_of_birth'] ?? ''); ?></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><?php echo htmlspecialchars($pm['gotra'] ?? ''); ?></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><?php echo htmlspecialchars($pm['caste'] ?? ''); ?></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><?php echo htmlspecialchars($pm['education'] ?? ''); ?></td>
+                            <td style="padding:8px;border-bottom:1px solid #eee"><a href="index.php?focus=<?php echo (int)$pm['id']; ?>">View</a><?php if (isset($_SESSION['admin_id'])): ?> | <a href="admin/edit_member.php?id=<?php echo (int)$pm['id']; ?>">Edit</a><?php elseif (isset($_SESSION['member_family_id']) && $_SESSION['member_family_id'] == $pm['family_id']): ?> | <a href="edit_member_front.php?id=<?php echo (int)$pm['id']; ?>">Edit</a><?php endif; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php endif; ?>
     <!-- Member detail modal -->
     <div id="member-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">

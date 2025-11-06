@@ -23,7 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Login
                 $_SESSION['member_id'] = $m['id'];
                 $_SESSION['member_family_id'] = $m['family_id'];
-                header('Location: member_dashboard.php');
+                // Redirect back to caller if requested (only allow relative/local paths)
+                $redirect = 'member_dashboard.php';
+                if (!empty($_GET['redirect'])) {
+                    $r = $_GET['redirect'];
+                    if (strpos($r, 'http://') === false && strpos($r, 'https://') === false) {
+                        $redirect = $r;
+                    }
+                }
+                header('Location: ' . $redirect);
                 exit;
             }
         }
