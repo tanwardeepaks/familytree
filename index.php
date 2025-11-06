@@ -189,7 +189,7 @@ $nodesJson = json_encode($nodes);
         #member-modal-body td { padding: 10px; border-bottom: 1px solid #eee; }
         #member-modal-body img { max-width: 120px; border-radius: 6px; display:block; margin-top:6px; }
     </style>
-    <script src="FamilyTree.js"></script>
+    <script src="familytree.js"></script>
 </head>
 <body>
     <h2>Family Tree</h2>
