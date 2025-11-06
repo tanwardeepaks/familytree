@@ -339,53 +339,7 @@ if (isset($_SESSION['admin_id'])) {
             });
         });
 
-        // Show member details in a modal when a node is clicked
-        family.on('click', function(sender, args) {
-            var node = args.node;
-            if (!node) return;
-
-            var rows = [];
-            function addRow(label, value) {
-                rows.push('<tr><th style="text-align:left;padding:6px 8px;background:#f5f5f5;width:35%">'+label+'</th><td style="padding:6px 8px">'+(value?value:'-')+'</td></tr>');
-            }
-
-            var imgHtml = node.img ? '<img src="'+node.img+'" style="max-width:120px;border-radius:6px;display:block;margin-bottom:8px">' : '';
-            var nameHtml = '<strong style="font-size:1.2em">'+(node.name||'')+'</strong>';
-
-            addRow('Name', nameHtml + imgHtml);
-            addRow('Gender', node.gender);
-            addRow('Date of Birth', node.date_of_birth || '-');
-            addRow('Birth Time', node.birth_time || '-');
-            addRow('Birth Place', node.birth_place || '-');
-            addRow('Education', node.education || '-');
-            addRow('Occupation', node.occupation || '-');
-            addRow('Mobile', node.mobile_no || '-');
-            addRow('Address', node.address || '-');
-            addRow('Gotra', node.gotra || '-');
-            addRow('Caste', node.caste || '-');
-            addRow('Status', node.status || '-');
-            addRow('Father', node.father_name || (node.fid?('ID: '+node.fid):'-'));
-            addRow('Mother', node.mother_name || (node.mid?('ID: '+node.mid):'-'));
-            addRow('Spouse', node.spouse_name || (node.pids && node.pids.length?('ID: '+node.pids[0]):'-'));
-
-            var table = '<table style="width:100%;border-collapse:collapse;">'+rows.join('')+'</table>';
-            document.getElementById('member-modal-body').innerHTML = table;
-            var modal = document.getElementById('member-modal');
-            modal.style.display = 'flex';
-        });
-
-        // Modal close
-        document.addEventListener('click', function(e){
-            var modal = document.getElementById('member-modal');
-            if (!modal) return;
-            if (e.target && e.target.id === 'member-modal-close') {
-                modal.style.display = 'none';
-            }
-            // click outside content closes
-            if (e.target && e.target.id === 'member-modal') {
-                modal.style.display = 'none';
-            }
-        });
+        
     </script>
 </body>
 </html>
