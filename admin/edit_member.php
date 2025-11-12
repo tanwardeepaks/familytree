@@ -395,7 +395,7 @@ while ($r = $res->fetch_assoc()) $families[] = $r;
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="email">Email Address (for login):</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($member['email'] ?? ''); ?>" required>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($member['email'] ?? ''); ?>" >
                 <small>This email will be used for member login from the frontend.</small>
             </div>
             <div class="form-group">
